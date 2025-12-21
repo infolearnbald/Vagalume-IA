@@ -21,7 +21,7 @@ body {
   padding: 40px;
   border-radius: 12px;
   box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-  width: 350px;
+  width: 360px;
 }
 
 .container h2 {
@@ -30,7 +30,7 @@ body {
   margin-bottom: 25px;
 }
 
-input {
+input, select {
   width: 100%;
   padding: 12px 15px;
   margin-bottom: 15px;
@@ -51,28 +51,35 @@ button {
   font-size: 15px;
 }
 
-button:hover {
-  background: #1565c0;
-}
+button:hover { background: #1565c0; }
 
 .terms {
   font-size: 12px;
   color: #555;
-  margin-top: 10px;
+  margin-bottom: 15px;
 }
-.terms a { color: #1e88e5; text-decoration: none; }
+.terms a { color: #1e88e5; text-decoration: none; margin-left: 5px; }
 </style>
 </head>
 
 <body>
 <div class="container">
   <h2>Criar Conta - Vagalume IA</h2>
+
   <input type="text" id="nome" placeholder="Seu nome completo" required>
   <input type="email" id="email" placeholder="Digite seu email" required>
   <input type="password" id="senha" placeholder="Senha (mín. 6 caracteres)" required>
+
+  <label>Escolha o modo de acesso:</label>
+  <select id="modo">
+    <option value="free">Free (2 PDFs/dia)</option>
+    <option value="premium">Premium (320 MT - ilimitado)</option>
+  </select>
+
   <label class="terms">
     <input type="checkbox" id="aceitar"> Aceito os <a href="#">Termos e Condições</a>
   </label>
+
   <button onclick="signup()">Criar Conta</button>
 </div>
 
@@ -99,8 +106,8 @@ async function signup() {
   const email = document.getElementById("email").value.trim();
   const senha = document.getElementById("senha").value.trim();
   const aceitar = document.getElementById("aceitar").checked;
+  const modo = document.getElementById("modo").value;
 
-  // Validação básica
   if (!nome || !email || !senha) return alert("Preencha todos os campos.");
   if (!aceitar) return alert("Você precisa aceitar os Termos e Condições.");
 
@@ -109,23 +116,25 @@ async function signup() {
   if (senha.length < 6) return alert("A senha deve ter pelo menos 6 caracteres.");
 
   try {
-    // Criar usuário
     const userCred = await createUserWithEmailAndPassword(auth, email, senha);
-
-    // Atualizar displayName
     await updateProfile(userCred.user, { displayName: nome });
 
-    // Criar documento no Firestore para gerenciar modo Free/Premium e PDFs
+    // Firestore
     await setDoc(doc(db, "users", userCred.user.uid), {
       name: nome,
       email: email,
-      mode: "free",   // por padrão Free
-      pdfCount: 0,    // PDFs usados hoje
+      mode: modo,
+      pdfCount: 0,
       createdAt: new Date()
     });
 
-    alert("Conta criada com sucesso!");
-    window.location = "app.html"; // Redireciona para a app
+    if(modo === "premium") {
+      alert("Conta Premium selecionada! Após o pagamento de 320 MT, você terá PDFs ilimitados.");
+    } else {
+      alert("Conta Free criada com sucesso! Limite de 2 PDFs/dia.");
+    }
+
+    window.location = "app.html";
   } catch (err) {
     if (err.code === "auth/email-already-in-use") alert("Email já cadastrado.");
     else if (err.code === "auth/network-request-failed") alert("Falha de conexão. Verifique sua internet.");
