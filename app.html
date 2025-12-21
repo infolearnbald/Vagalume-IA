@@ -10,7 +10,7 @@
 
 body {
   margin: 0;
-  background: #f4f8ff;
+  background: linear-gradient(135deg,#eaf2ff,#ffffff);
   display: flex;
   height: 100vh;
 }
@@ -180,7 +180,7 @@ body {
   </div>
 
   <button class="btn-premium" onclick="premium()">
-    Usar Premium sem Limites
+    Ativar Premium (320 MT)
   </button>
 
   <button class="btn-logout" onclick="logout()">
@@ -233,10 +233,9 @@ const input = document.getElementById("input");
 const userInfo = document.getElementById("userInfo");
 
 let userData = null;
-
 const BACKEND = "https://vagalumeia-backend.onrender.com";
 
-// Adiciona mensagem no chat
+// Função para adicionar mensagem
 function addMsg(text, type) {
   const d = document.createElement("div");
   d.className = "msg " + type;
@@ -245,7 +244,7 @@ function addMsg(text, type) {
   chat.scrollTop = chat.scrollHeight;
 }
 
-// Checa login
+// Checar login e carregar dados do usuário
 onAuthStateChanged(auth, async user => {
   if (!user) {
     window.location = "login.html";
@@ -257,15 +256,19 @@ onAuthStateChanged(auth, async user => {
 
   if (!userData.pdfCount) userData.pdfCount = 0;
 
+  let modoTexto = userData.mode === "premium" 
+    ? "Premium (320 MT - acesso ilimitado)" 
+    : "Free (2 PDFs/dia)";
+
   userInfo.innerHTML = `
     👋 Olá <strong>${userData.name}</strong><br>
-    Modo: <span class="badge ${userData.mode === "premium" ? "premium" : ""}">${userData.mode}</span><br>
+    Modo: <span class="badge ${userData.mode === "premium" ? "premium" : ""}">${modoTexto}</span><br>
     PDFs hoje: ${userData.pdfCount || 0}/2
   `;
 
   addMsg(
     `Olá ${userData.name}, seja bem-vindo ao Vagalume IA.
-Modo selecionado: ${userData.mode}
+Você está usando o modo: ${modoTexto}.
 Posso ajudar com:
 • Currículos profissionais
 • Consultoria de emprego
@@ -282,10 +285,9 @@ window.enviar = async function () {
   addMsg(text, "user");
   input.value = "";
 
-  // Limite Free
   if (userData.mode === "free" && userData.pdfCount >= 2) {
     addMsg(
-      "Você já atingiu o limite de PDFs grátis hoje. Use Premium para gerar PDFs ilimitados.",
+      "Você já atingiu o limite de PDFs grátis hoje. Use Premium (320 MT) para gerar PDFs ilimitados.",
       "ia"
     );
     return;
@@ -306,21 +308,20 @@ window.enviar = async function () {
 
     const blob = await res.blob();
     const url = URL.createObjectURL(blob);
-
     const a = document.createElement("a");
     a.href = url;
     a.download = "Curriculo-Vagalume-IA.pdf";
     a.click();
 
-    // Atualiza PDF count no Firestore
+    // Atualiza PDF count Free
     if (userData.mode === "free") {
       const uid = auth.currentUser.uid;
       const userRef = doc(db, "users", uid);
       await updateDoc(userRef, { pdfCount: increment(1) });
       userData.pdfCount += 1;
       userInfo.innerHTML = `
-        👋 Olá <strong>${userData.name}</strong><br>
-        Modo: <span class="badge ${userData.mode === "premium" ? "premium" : ""}">${userData.mode}</span><br>
+         Olá <strong>${userData.name}</strong><br>
+        Modo: <span class="badge ${userData.mode === "premium" ? "premium" : ""}">${modoTexto}</span><br>
         PDFs hoje: ${userData.pdfCount}/2
       `;
     }
@@ -360,7 +361,9 @@ window.analisarArquivo = async function () {
 
 // Botão Premium → WhatsApp
 window.premium = function () {
-  const msg = encodeURIComponent("Olá, quero ativar a conta PREMIUM do Vagalume IA.");
+  const msg = encodeURIComponent(
+    "Olá, quero ativar a conta PREMIUM do Vagalume IA por 320 MT."
+  );
   window.open("https://wa.me/258844180213?text=" + msg, "_blank");
 };
 
