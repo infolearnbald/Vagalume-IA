@@ -7,164 +7,38 @@
 
 <style>
 * { box-sizing: border-box; font-family: "Segoe UI", Arial, sans-serif; }
+body { margin: 0; background: linear-gradient(135deg,#eaf2ff,#ffffff); display: flex; height: 100vh; }
 
-body {
-  margin: 0;
-  background: linear-gradient(135deg,#eaf2ff,#ffffff);
-  display: flex;
-  height: 100vh;
-}
+/* SIDEBAR */
+.sidebar { width: 260px; background: #fff; border-right: 1px solid #ddd; display: flex; flex-direction: column; }
+.sidebar header { padding: 20px; border-bottom: 1px solid #eee; text-align: center; }
+.sidebar header img { width: 60px; }
+.sidebar header h2 { margin: 10px 0 2px; color: #1e88e5; }
+.sidebar header small { font-size: 11px; letter-spacing: 1px; color: #777; }
+.user-info { padding: 15px; font-size: 14px; }
+.badge { display: inline-block; padding: 3px 8px; border-radius: 6px; font-size: 12px; background: #e3f2fd; color: #0d47a1; }
+.premium { background: #ffd54f; color: #000; }
+.sidebar button { margin: 10px 15px; padding: 12px; border-radius: 10px; border: none; cursor: pointer; font-weight: bold; }
+.btn-premium { background: #1e88e5; color: #fff; }
+.btn-logout { background: #eee; }
 
-/* ===== SIDEBAR ===== */
-.sidebar {
-  width: 260px;
-  background: #ffffff;
-  border-right: 1px solid #ddd;
-  display: flex;
-  flex-direction: column;
-}
-
-.sidebar header {
-  padding: 20px;
-  border-bottom: 1px solid #eee;
-  text-align: center;
-}
-
-.sidebar header img {
-  width: 60px;
-}
-
-.sidebar header h2 {
-  margin: 10px 0 2px;
-  color: #1e88e5;
-}
-
-.sidebar header small {
-  font-size: 11px;
-  letter-spacing: 1px;
-  color: #777;
-}
-
-.user-info {
-  padding: 15px;
-  font-size: 14px;
-}
-
-.badge {
-  display: inline-block;
-  padding: 3px 8px;
-  border-radius: 6px;
-  font-size: 12px;
-  background: #e3f2fd;
-  color: #0d47a1;
-}
-
-.premium {
-  background: #ffd54f;
-  color: #000;
-}
-
-.sidebar button {
-  margin: 10px 15px;
-  padding: 12px;
-  border-radius: 10px;
-  border: none;
-  cursor: pointer;
-  font-weight: bold;
-}
-
-.btn-premium {
-  background: #1e88e5;
-  color: #fff;
-}
-
-.btn-logout {
-  background: #eee;
-}
-
-/* ===== CHAT ===== */
-.main {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-.chat-header {
-  padding: 15px;
-  background: #1e88e5;
-  color: #fff;
-}
-
-.chat-box {
-  flex: 1;
-  padding: 15px;
-  overflow-y: auto;
-}
-
-.msg {
-  max-width: 75%;
-  padding: 12px 15px;
-  margin-bottom: 12px;
-  border-radius: 15px;
-  font-size: 14px;
-  line-height: 1.5;
-}
-
-.ia {
-  background: #e3f2fd;
-  color: #0d47a1;
-}
-
-.user {
-  background: #1e88e5;
-  color: white;
-  margin-left: auto;
-}
-
-.chat-input {
-  display: flex;
-  padding: 12px;
-  border-top: 1px solid #ddd;
-  background: #fff;
-}
-
-.chat-input input {
-  flex: 1;
-  padding: 12px;
-  border-radius: 10px;
-  border: 1px solid #ccc;
-}
-
-.chat-input button {
-  margin-left: 10px;
-  padding: 12px 18px;
-  border-radius: 10px;
-  border: none;
-  background: #1e88e5;
-  color: white;
-  cursor: pointer;
-}
+/* CHAT */
+.main { flex: 1; display: flex; flex-direction: column; }
+.chat-header { padding: 15px; background: #1e88e5; color: #fff; }
+.chat-box { flex: 1; padding: 15px; overflow-y: auto; }
+.msg { max-width: 75%; padding: 12px 15px; margin-bottom: 12px; border-radius: 15px; font-size: 14px; line-height: 1.5; }
+.ia { background: #e3f2fd; color: #0d47a1; }
+.user { background: #1e88e5; color: white; margin-left: auto; }
+.chat-input { display: flex; padding: 12px; border-top: 1px solid #ddd; background: #fff; }
+.chat-input input { flex: 1; padding: 12px; border-radius: 10px; border: 1px solid #ccc; }
+.chat-input button { margin-left: 10px; padding: 12px 18px; border-radius: 10px; border: none; background: #1e88e5; color: white; cursor: pointer; }
 
 /* Upload */
-.upload-container {
-  padding: 10px 15px;
-  border-top: 1px solid #ddd;
-  background: #f9fbff;
-}
-.upload-container input {
-  margin-bottom: 10px;
-}
-#resultadoArquivo {
-  white-space: pre-wrap;
-  background: #eef5ff;
-  padding: 10px;
-  border-radius: 8px;
-  max-height: 150px;
-  overflow-y: auto;
-}
+.upload-container { padding: 10px 15px; border-top: 1px solid #ddd; background: #f9fbff; }
+.upload-container input { margin-bottom: 10px; }
+#resultadoArquivo { white-space: pre-wrap; background: #eef5ff; padding: 10px; border-radius: 8px; max-height: 150px; overflow-y: auto; }
 </style>
 </head>
-
 <body>
 
 <!-- SIDEBAR -->
@@ -175,17 +49,10 @@ body {
     <small>SECOS Intelligence</small>
   </header>
 
-  <div class="user-info" id="userInfo">
-    Carregando usuário...
-  </div>
+  <div class="user-info" id="userInfo">Carregando usuário...</div>
 
-  <button class="btn-premium" onclick="premium()">
-    Ativar Premium (320 MT)
-  </button>
-
-  <button class="btn-logout" onclick="logout()">
-    Sair
-  </button>
+  <button class="btn-premium" onclick="premium()">Ativar Premium (320 MT)</button>
+  <button class="btn-logout" onclick="logout()">Sair</button>
 </div>
 
 <!-- CHAT -->
@@ -201,7 +68,6 @@ body {
     <button onclick="enviar()">Enviar</button>
   </div>
 
-  <!-- Upload -->
   <div class="upload-container">
     <input type="file" id="fileInput" accept=".pdf,.docx">
     <button onclick="analisarArquivo()">Analisar Arquivo</button>
@@ -209,7 +75,6 @@ body {
   </div>
 </div>
 
-<!-- FIREBASE + CHAT + UPLOAD -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -231,11 +96,19 @@ const db = getFirestore(app);
 const chat = document.getElementById("chat");
 const input = document.getElementById("input");
 const userInfo = document.getElementById("userInfo");
-
 let userData = null;
 const BACKEND = "https://vagalumeia-backend.onrender.com";
 
-// Função para adicionar mensagem
+let etapa = 0;
+let dados = {};
+const perguntas = [
+  "Olá! Sou a Vagalume IA. Qual é o seu nome completo?",
+  "Qual é sua área profissional ou especialidade?",
+  "Descreva suas experiências profissionais (empresas, anos e funções).",
+  "Liste suas principais habilidades técnicas.",
+  "Qual é seu objetivo profissional?"
+];
+
 function addMsg(text, type) {
   const d = document.createElement("div");
   d.className = "msg " + type;
@@ -244,16 +117,19 @@ function addMsg(text, type) {
   chat.scrollTop = chat.scrollHeight;
 }
 
-// Checar login e carregar dados do usuário
-onAuthStateChanged(auth, async user => {
-  if (!user) {
-    window.location = "login.html";
-    return;
-  }
+function typingIA(callback) {
+  const t = document.createElement("div");
+  t.className = "msg ia typing";
+  t.innerText = "Vagalume IA está digitando...";
+  chat.appendChild(t);
+  chat.scrollTop = chat.scrollHeight;
+  setTimeout(() => { chat.removeChild(t); callback(); }, 1200);
+}
 
+onAuthStateChanged(auth, async user => {
+  if (!user) { window.location = "login.html"; return; }
   const snap = await getDoc(doc(db, "users", user.uid));
   userData = snap.data();
-
   if (!userData.pdfCount) userData.pdfCount = 0;
 
   let modoTexto = userData.mode === "premium" 
@@ -262,116 +138,101 @@ onAuthStateChanged(auth, async user => {
 
   userInfo.innerHTML = `
     👋 Olá <strong>${userData.name}</strong><br>
-    Modo: <span class="badge ${userData.mode === "premium" ? "premium" : ""}">${modoTexto}</span><br>
-    PDFs hoje: ${userData.pdfCount || 0}/2
+    Modo: <span class="badge ${userData.mode==="premium"?"premium":""}">${modoTexto}</span><br>
+    PDFs hoje: ${userData.pdfCount}/2
   `;
 
-  addMsg(
-    `Olá ${userData.name}, seja bem-vindo ao Vagalume IA.
-Você está usando o modo: ${modoTexto}.
+  typingIA(() => addMsg(
+    `Olá ${userData.name}, seja bem-vindo ao Vagalume IA. Você está usando o modo: ${modoTexto}. 
 Posso ajudar com:
 • Currículos profissionais
 • Consultoria de emprego
 • Empresas no mundo
 • Documentos organizados em PDF`,
     "ia"
-  );
+  ));
 });
 
-// Enviar mensagem / gerar PDF
-window.enviar = async function () {
-  const text = input.value.trim();
-  if (!text) return;
-  addMsg(text, "user");
+window.enviar = function () {
+  const texto = input.value.trim();
+  if (!texto) return;
+  addMsg(texto,"user");
   input.value = "";
 
-  if (userData.mode === "free" && userData.pdfCount >= 2) {
-    addMsg(
-      "Você já atingiu o limite de PDFs grátis hoje. Use Premium (320 MT) para gerar PDFs ilimitados.",
-      "ia"
-    );
+  // Limite Free
+  if(userData.mode==="free" && userData.pdfCount>=2) {
+    addMsg("Você já atingiu o limite de PDFs grátis hoje. Use Premium (320 MT) para PDFs ilimitados.","ia");
     return;
   }
 
-  try {
-    const res = await fetch(BACKEND + "/gerar-pdf", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        nome: userData.name,
-        area: "Exemplo de área",
-        experiencia: "Exemplo de experiência",
-        habilidades: "Exemplo de habilidades",
-        objetivo: "Exemplo de objetivo"
-      })
-    });
+  // Perguntas passo a passo
+  if(etapa < perguntas.length) {
+    if(etapa===0) dados.nome = texto;
+    if(etapa===1) dados.area = texto;
+    if(etapa===2) dados.experiencia = texto;
+    if(etapa===3) dados.habilidades = texto;
+    if(etapa===4) dados.objetivo = texto;
 
+    etapa++;
+    if(etapa < perguntas.length) {
+      typingIA(()=>addMsg(perguntas[etapa],"ia"));
+    } else {
+      typingIA(()=>{ addMsg("Todas as informações foram coletadas. Gerando PDF...","ia"); gerarPDF(); });
+    }
+  } else {
+    // Conversa livre / ideias / outros documentos
+    typingIA(()=>addMsg("Claro! Posso ajudar com ideias, CV ou consultoria. Se quiser gerar PDF, use o botão ou diga 'gerar CV'","ia"));
+  }
+};
+
+async function gerarPDF() {
+  try {
+    const res = await fetch(BACKEND+"/gerar-pdf",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify(dados)
+    });
     const blob = await res.blob();
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "Curriculo-Vagalume-IA.pdf";
+    a.download="Curriculo-Vagalume-IA.pdf";
     a.click();
 
-    // Atualiza PDF count Free
-    if (userData.mode === "free") {
+    if(userData.mode==="free"){
       const uid = auth.currentUser.uid;
-      const userRef = doc(db, "users", uid);
-      await updateDoc(userRef, { pdfCount: increment(1) });
-      userData.pdfCount += 1;
-      userInfo.innerHTML = `
-         Olá <strong>${userData.name}</strong><br>
-        Modo: <span class="badge ${userData.mode === "premium" ? "premium" : ""}">${modoTexto}</span><br>
-        PDFs hoje: ${userData.pdfCount}/2
-      `;
+      const userRef = doc(db,"users",uid);
+      await updateDoc(userRef,{pdfCount:increment(1)});
+      userData.pdfCount++;
+      let modoTexto = "Free (2 PDFs/dia)";
+      userInfo.innerHTML = `👋 Olá <strong>${userData.name}</strong><br>
+      Modo: <span class="badge">${modoTexto}</span><br>
+      PDFs hoje: ${userData.pdfCount}/2`;
     }
+    addMsg("PDF gerado com sucesso ✅","ia");
+  } catch(err){ addMsg("Erro ao gerar PDF","ia"); }
+}
 
-    addMsg("PDF gerado com sucesso ✅", "ia");
-  } catch (err) {
-    addMsg("Erro ao gerar PDF. Tente novamente.", "ia");
-  }
-};
-
-// Upload e análise de arquivos
-window.analisarArquivo = async function () {
+window.analisarArquivo = async function(){
   const inputFile = document.getElementById("fileInput");
-  if (!inputFile.files.length) return alert("Selecione um arquivo PDF ou DOCX");
-
+  if(!inputFile.files.length) return alert("Selecione um arquivo PDF ou DOCX");
   const formData = new FormData();
   formData.append("file", inputFile.files[0]);
-
   try {
-    const res = await fetch(BACKEND + "/upload", {
-      method: "POST",
-      body: formData
-    });
-
+    const res = await fetch(BACKEND+"/upload",{method:"POST",body:formData});
     const data = await res.json();
+    if(data.erro) alert(data.erro);
+    else { document.getElementById("resultadoArquivo").innerText = data.texto_reformulado; addMsg("Arquivo analisado e reformulado com sucesso ✅","ia"); }
+  } catch(err){ alert("Erro ao analisar arquivo"); }
+}
 
-    if (data.erro) {
-      alert(data.erro);
-    } else {
-      document.getElementById("resultadoArquivo").innerText = data.texto_reformulado;
-      addMsg("Arquivo analisado e reformulado com sucesso ✅", "ia");
-    }
-  } catch (err) {
-    alert("Erro ao analisar arquivo");
-  }
-};
+window.premium = function(){
+  const msg = encodeURIComponent("Olá, quero ativar a conta PREMIUM do Vagalume IA por 320 MT.");
+  window.open("https://wa.me/258844180213?text="+msg,"_blank");
+}
 
-// Botão Premium → WhatsApp
-window.premium = function () {
-  const msg = encodeURIComponent(
-    "Olá, quero ativar a conta PREMIUM do Vagalume IA por 320 MT."
-  );
-  window.open("https://wa.me/258844180213?text=" + msg, "_blank");
-};
+window.logout = function(){ signOut(auth); }
 
-// Logout
-window.logout = function () {
-  signOut(auth);
-};
 </script>
-
 </body>
 </html>
