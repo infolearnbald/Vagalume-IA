@@ -1,277 +1,31 @@
-<!DOCTYPE html>
-<html lang="pt">
-<head>
-<meta charset="UTF-8">
-<title>Vagalume IA | App</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<input type="file" id="fileInput" accept=".pdf,.docx">
+<button onclick="analisarArquivo()">Analisar Arquivo</button>
+<pre id="resultadoArquivo"></pre>
 
-<style>
-* { box-sizing: border-box; font-family: "Segoe UI", Arial, sans-serif; }
+<script>
+async function analisarArquivo() {
+  const inputFile = document.getElementById("fileInput");
+  if (!inputFile.files.length) return alert("Selecione um arquivo PDF ou DOCX");
 
-body {
-  margin: 0;
-  background: #f4f8ff;
-  display: flex;
-  height: 100vh;
-}
+  const formData = new FormData();
+  formData.append("file", inputFile.files[0]);
 
-/* ===== SIDEBAR ===== */
-.sidebar {
-  width: 260px;
-  background: #ffffff;
-  border-right: 1px solid #ddd;
-  display: flex;
-  flex-direction: column;
-}
+  try {
+    const res = await fetch("https://vagalumeia-backend.onrender.com/upload", {
+      method: "POST",
+      body: formData
+    });
 
-.sidebar header {
-  padding: 20px;
-  border-bottom: 1px solid #eee;
-  text-align: center;
-}
+    const data = await res.json();
 
-.sidebar header img {
-  width: 60px;
-}
-
-.sidebar header h2 {
-  margin: 10px 0 2px;
-  color: #1e88e5;
-}
-
-.sidebar header small {
-  font-size: 11px;
-  letter-spacing: 1px;
-  color: #777;
-}
-
-.user-info {
-  padding: 15px;
-  font-size: 14px;
-}
-
-.badge {
-  display: inline-block;
-  padding: 3px 8px;
-  border-radius: 6px;
-  font-size: 12px;
-  background: #e3f2fd;
-  color: #0d47a1;
-}
-
-.premium {
-  background: #ffd54f;
-  color: #000;
-}
-
-.sidebar button {
-  margin: 10px 15px;
-  padding: 12px;
-  border-radius: 10px;
-  border: none;
-  cursor: pointer;
-  font-weight: bold;
-}
-
-.btn-premium {
-  background: #1e88e5;
-  color: #fff;
-}
-
-.btn-logout {
-  background: #eee;
-}
-
-/* ===== CHAT ===== */
-.main {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-.chat-header {
-  padding: 15px;
-  background: #1e88e5;
-  color: #fff;
-}
-
-.chat-box {
-  flex: 1;
-  padding: 15px;
-  overflow-y: auto;
-}
-
-.msg {
-  max-width: 75%;
-  padding: 12px 15px;
-  margin-bottom: 12px;
-  border-radius: 15px;
-  font-size: 14px;
-  line-height: 1.5;
-}
-
-.ia {
-  background: #e3f2fd;
-  color: #0d47a1;
-}
-
-.user {
-  background: #1e88e5;
-  color: white;
-  margin-left: auto;
-}
-
-.chat-input {
-  display: flex;
-  padding: 12px;
-  border-top: 1px solid #ddd;
-  background: #fff;
-}
-
-.chat-input input {
-  flex: 1;
-  padding: 12px;
-  border-radius: 10px;
-  border: 1px solid #ccc;
-}
-
-.chat-input button {
-  margin-left: 10px;
-  padding: 12px 18px;
-  border-radius: 10px;
-  border: none;
-  background: #1e88e5;
-  color: white;
-  cursor: pointer;
-}
-</style>
-</head>
-
-<body>
-
-<!-- SIDEBAR -->
-<div class="sidebar">
-  <header>
-    <img src="vagalume.png">
-    <h2>Vagalume IA</h2>
-    <small>SECOS Intelligence</small>
-  </header>
-
-  <div class="user-info" id="userInfo">
-    Carregando usuário...
-  </div>
-
-  <button class="btn-premium" onclick="premium()">
-    Usar Premium sem Limites
-  </button>
-
-  <button class="btn-logout" onclick="logout()">
-    Sair
-  </button>
-</div>
-
-<!-- CHAT -->
-<div class="main">
-  <div class="chat-header">
-    Assistente Profissional • Emprego • CV • Empresas
-  </div>
-
-  <div class="chat-box" id="chat"></div>
-
-  <div class="chat-input">
-    <input id="input" placeholder="Digite sua mensagem...">
-    <button onclick="enviar()">Enviar</button>
-  </div>
-</div>
-
-<!-- FIREBASE -->
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, doc, getDoc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyBQFUQmF4h9yLq2yzRcGdRvQQLpW48kx0M",
-  authDomain: "vagalumeia-92304.firebaseapp.com",
-  projectId: "vagalumeia-92304",
-  storageBucket: "vagalumeia-92304.firebasestorage.app",
-  messagingSenderId: "995747174944",
-  appId: "1:995747174944:web:7536114239aadec568fa45"
-};
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-
-const chat = document.getElementById("chat");
-const input = document.getElementById("input");
-const userInfo = document.getElementById("userInfo");
-
-let userData = null;
-
-function addMsg(text, type) {
-  const d = document.createElement("div");
-  d.className = "msg " + type;
-  d.innerText = text;
-  chat.appendChild(d);
-  chat.scrollTop = chat.scrollHeight;
-}
-
-onAuthStateChanged(auth, async user => {
-  if (!user) {
-    window.location = "login.html";
-    return;
+    if (data.erro) {
+      alert(data.erro);
+    } else {
+      document.getElementById("resultadoArquivo").innerText = data.texto_reformulado;
+      addMsg("Arquivo analisado e reformulado com sucesso ✅", "ia");
+    }
+  } catch (err) {
+    alert("Erro ao analisar arquivo");
   }
-
-  const snap = await getDoc(doc(db, "users", user.uid));
-  userData = snap.data();
-
-  userInfo.innerHTML = `
-    👋 Olá <strong>${userData.name}</strong><br>
-    Modo: <span class="badge ${userData.mode === "premium" ? "premium" : ""}">
-      ${userData.mode}
-    </span><br>
-    PDFs hoje: ${userData.pdfCount || 0}/2
-  `;
-
-  addMsg(
-    `Olá ${userData.name}, seja bem-vindo ao Vagalume IA.
-Posso ajudar com:
-• Currículos profissionais
-• Consultoria de emprego
-• Empresas em Moçambique ou no mundo
-• Documentos organizados em PDF`,
-    "ia"
-  );
-});
-
-window.enviar = async function () {
-  const text = input.value.trim();
-  if (!text) return;
-
-  addMsg(text, "user");
-  input.value = "";
-
-  // Resposta simulada (IA)
-  setTimeout(() => {
-    addMsg(
-      "Entendi. Posso analisar, melhorar seu currículo ou gerar um documento profissional em PDF. Diga como deseja continuar.",
-      "ia"
-    );
-  }, 800);
-};
-
-window.premium = function () {
-  const msg = encodeURIComponent(
-    "Olá, quero ativar a conta PREMIUM do Vagalume IA."
-  );
-  window.open("https://wa.me/258844180213?text=" + msg, "_blank");
-};
-
-window.logout = function () {
-  signOut(auth);
-};
+}
 </script>
-
-</body>
-</html>
