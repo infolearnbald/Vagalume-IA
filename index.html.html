@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<title>Vagalume IA | SECOS</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+/* RESET */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Segoe UI", Arial, sans-serif;
+}
+
+/* BODY + BACKGROUND */
+body {
+  min-height: 100vh;
+  background:
+    linear-gradient(120deg, rgba(30,136,229,0.9), rgba(30,136,229,0.7)),
+    url("https://images.unsplash.com/photo-1522071820081-009f0129c71c");
+  background-size: cover;
+  background-position: center;
+  color: #fff;
+}
+
+/* SPLASH */
+.splash {
+  position: fixed;
+  inset: 0;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: splashOut 3s forwards;
+}
+
+@keyframes splashOut {
+  0%,80% { opacity: 1; }
+  100% { opacity: 0; visibility: hidden; }
+}
+
+.splash-box {
+  text-align: center;
+  animation: scaleIn 1.5s ease;
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.85); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.splash-box img {
+  width: 150px;
+  margin-bottom: 10px;
+}
+
+.splash-box h1 {
+  color: #1e88e5;
+}
+
+.splash-box p {
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: #777;
+}
+
+/* MAIN CONTAINER */
+.container {
+  max-width: 600px;
+  margin: auto;
+  padding: 40px 20px;
+  text-align: center;
+}
+
+/* CARD */
+.card {
+  background: rgba(255,255,255,0.12);
+  backdrop-filter: blur(8px);
+  border-radius: 16px;
+  padding: 35px 25px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+}
+
+/* TEXT */
+.card img {
+  width: 120px;
+  margin-bottom: 15px;
+}
+
+.card h1 {
+  font-size: 32px;
+  margin-bottom: 10px;
+}
+
+.card small {
+  font-size: 11px;
+  letter-spacing: 1px;
+  opacity: 0.85;
+}
+
+.card p {
+  margin-top: 20px;
+  line-height: 1.7;
+  font-size: 15px;
+  opacity: 0.95;
+}
+
+/* BUTTONS */
+.buttons {
+  margin-top: 30px;
+}
+
+.btn {
+  display: block;
+  width: 100%;
+  padding: 14px;
+  margin-bottom: 12px;
+  border-radius: 10px;
+  border: none;
+  font-weight: bold;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background: #ffffff;
+  color: #1e88e5;
+}
+
+.btn-secondary {
+  background: transparent;
+  color: #ffffff;
+  border: 2px solid rgba(255,255,255,0.7);
+}
+
+.btn-primary:hover,
+.btn-secondary:hover {
+  opacity: 0.9;
+}
+
+/* FOOTER */
+.footer {
+  margin-top: 25px;
+  font-size: 11px;
+  opacity: 0.8;
+}
+</style>
+</head>
+
+<body>
+
+<!-- SPLASH -->
+<div class="splash">
+  <div class="splash-box">
+    <img src="vagalume.png">
+    <h1>Vagalume IA</h1>
+    <p>A SECOS INTELLIGENCE</p>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="container">
+  <div class="card">
+
+    <img src="vagalume.png" alt="Vagalume IA">
+
+    <h1>Vagalume IA</h1>
+    <small>Uma inteligência artificial da SECOS • InfoLearn Academy</small>
+
+    <p>
+      A Vagalume IA foi criada para orientar pessoas no mundo do
+      <strong>emprego</strong>, da <strong>educação</strong> e do
+      <strong>empreendedorismo</strong>.
+      <br><br>
+      Ela auxilia na criação de currículos, análise profissional,
+      consultoria empresarial e organização de ideias — tudo de forma
+      inteligente, acessível e humana.
+    </p>
+
+    <div class="buttons">
+      <button class="btn btn-primary" onclick="window.location='login.html'">
+        Entrar
+      </button>
+
+      <button class="btn btn-secondary" onclick="window.location='signup.html'">
+        Criar conta
+      </button>
+
+      <button class="btn btn-secondary" onclick="alert('A Vagalume IA é um projeto da SECOS em parceria com a InfoLearn Academy, focado em empoderar pessoas através da tecnologia e educação.')">
+        Saber mais
+      </button>
+    </div>
+
+    <div class="footer">
+      © 2025 SECOS • InfoLearn Academy
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>
+
+
