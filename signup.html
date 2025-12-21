@@ -2,140 +2,84 @@
 <html lang="pt">
 <head>
 <meta charset="UTF-8">
-<title>Criar Conta | Vagalume IA</title>
+<title>Vagalume IA | Criar Conta</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: "Segoe UI", Arial, sans-serif;
-}
-
 body {
-  min-height: 100vh;
-  background:
-    linear-gradient(120deg, rgba(30,136,229,0.9), rgba(30,136,229,0.7)),
-    url("https://images.unsplash.com/photo-1498050108023-c5249f4df085");
-  background-size: cover;
-  background-position: center;
-  color: #fff;
+  margin: 0;
+  font-family: "Segoe UI", Arial, sans-serif;
+  background: linear-gradient(135deg,#eaf2ff,#ffffff);
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: center;
+  height: 100vh;
 }
 
-.card {
-  width: 100%;
-  max-width: 420px;
-  background: rgba(255,255,255,0.12);
-  backdrop-filter: blur(10px);
-  padding: 35px 25px;
-  border-radius: 18px;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+.container {
+  background: #fff;
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+  width: 350px;
 }
 
-.card h1 {
+.container h2 {
   text-align: center;
-  margin-bottom: 10px;
-}
-
-.card small {
-  display: block;
-  text-align: center;
-  font-size: 11px;
-  letter-spacing: 1px;
-  opacity: 0.85;
+  color: #1e88e5;
   margin-bottom: 25px;
 }
 
-input, select {
+input {
   width: 100%;
-  padding: 13px;
-  margin-bottom: 12px;
-  border-radius: 10px;
-  border: none;
-  outline: none;
+  padding: 12px 15px;
+  margin-bottom: 15px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
   font-size: 14px;
-}
-
-label {
-  font-size: 13px;
-}
-
-.terms {
-  font-size: 12px;
-  margin: 10px 0;
 }
 
 button {
   width: 100%;
-  padding: 14px;
-  border-radius: 10px;
+  padding: 12px;
   border: none;
-  background: #ffffff;
-  color: #1e88e5;
-  font-size: 15px;
+  border-radius: 8px;
+  background: #1e88e5;
+  color: #fff;
   font-weight: bold;
   cursor: pointer;
+  font-size: 15px;
 }
 
 button:hover {
-  opacity: 0.9;
+  background: #1565c0;
 }
 
-.message {
-  margin-top: 15px;
-  font-size: 14px;
-  text-align: center;
+.terms {
+  font-size: 12px;
+  color: #555;
+  margin-top: 10px;
 }
-
-.footer {
-  text-align: center;
-  margin-top: 15px;
-  font-size: 11px;
-  opacity: 0.8;
-}
+.terms a { color: #1e88e5; text-decoration: none; }
 </style>
 </head>
 
 <body>
-
-<div class="card">
-  <h1>Criar Conta</h1>
-  <small>Vagalume IA • SECOS</small>
-
-  <input type="text" id="name" placeholder="Seu nome completo">
-  <input type="email" id="email" placeholder="Seu email">
-  <input type="password" id="password" placeholder="Criar senha">
-
-  <select id="mode">
-    <option value="free">Modo Free</option>
-    <option value="premium">Modo Premium</option>
-  </select>
-
-  <div class="terms">
-    <input type="checkbox" id="terms">
-    <label for="terms">
-      Li e aceito os Termos e Condições da Vagalume IA
-    </label>
-  </div>
-
-  <button onclick="signup()">Criar conta</button>
-
-  <div class="message" id="msg"></div>
-
-  <div class="footer">
-    Já tem conta? <a href="login.html" style="color:#fff;">Entrar</a>
-  </div>
+<div class="container">
+  <h2>Criar Conta - Vagalume IA</h2>
+  <input type="text" id="nome" placeholder="Seu nome completo" required>
+  <input type="email" id="email" placeholder="Digite seu email" required>
+  <input type="password" id="senha" placeholder="Senha (mín. 6 caracteres)" required>
+  <label class="terms">
+    <input type="checkbox" id="aceitar"> Aceito os <a href="#">Termos e Condições</a>
+  </label>
+  <button onclick="signup()">Criar Conta</button>
 </div>
 
-<!-- FIREBASE -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getAuth, createUserWithEmailAndPassword, updateProfile } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBQFUQmF4h9yLq2yzRcGdRvQQLpW48kx0M",
@@ -150,49 +94,44 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-window.signup = async function () {
-  const name = document.getElementById("name").value.trim();
+async function signup() {
+  const nome = document.getElementById("nome").value.trim();
   const email = document.getElementById("email").value.trim();
-  const password = document.getElementById("password").value;
-  const mode = document.getElementById("mode").value;
-  const terms = document.getElementById("terms").checked;
-  const msg = document.getElementById("msg");
+  const senha = document.getElementById("senha").value.trim();
+  const aceitar = document.getElementById("aceitar").checked;
 
-  if (!name || !email || !password) {
-    msg.innerText = "Preencha todos os campos.";
-    return;
-  }
+  // Validação básica
+  if (!nome || !email || !senha) return alert("Preencha todos os campos.");
+  if (!aceitar) return alert("Você precisa aceitar os Termos e Condições.");
 
-  if (!terms) {
-    msg.innerText = "Você deve aceitar os termos e condições.";
-    return;
-  }
+  const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!regexEmail.test(email)) return alert("Digite um email válido.");
+  if (senha.length < 6) return alert("A senha deve ter pelo menos 6 caracteres.");
 
   try {
-    const userCred = await createUserWithEmailAndPassword(auth, email, password);
+    // Criar usuário
+    const userCred = await createUserWithEmailAndPassword(auth, email, senha);
 
+    // Atualizar displayName
+    await updateProfile(userCred.user, { displayName: nome });
+
+    // Criar documento no Firestore para gerenciar modo Free/Premium e PDFs
     await setDoc(doc(db, "users", userCred.user.uid), {
-      name: name,
+      name: nome,
       email: email,
-      mode: mode,
-      createdAt: serverTimestamp(),
-      projects: 0
+      mode: "free",   // por padrão Free
+      pdfCount: 0,    // PDFs usados hoje
+      createdAt: new Date()
     });
 
-    msg.innerHTML = `
-      🎉 Olá <strong>${name}</strong>, seja bem-vindo ao Vagalume IA!<br>
-      Você escolheu o modo <strong>${mode}</strong>.
-    `;
-
-    setTimeout(() => {
-      window.location = "app.html";
-    }, 2500);
-
-  } catch (error) {
-    msg.innerText = error.message;
+    alert("Conta criada com sucesso!");
+    window.location = "app.html"; // Redireciona para a app
+  } catch (err) {
+    if (err.code === "auth/email-already-in-use") alert("Email já cadastrado.");
+    else if (err.code === "auth/network-request-failed") alert("Falha de conexão. Verifique sua internet.");
+    else alert(err.message);
   }
 }
 </script>
-
 </body>
 </html>
