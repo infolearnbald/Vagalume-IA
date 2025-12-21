@@ -2,7 +2,7 @@
 <html lang="pt">
 <head>
 <meta charset="UTF-8">
-<title>Vagalume IA | Login</title>
+<title>Vagalume IA | Criar Conta</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
@@ -30,7 +30,7 @@ body {
   margin-bottom: 25px;
 }
 
-input {
+input, select {
   width: 100%;
   padding: 12px 15px;
   margin-bottom: 15px;
@@ -53,31 +53,40 @@ button {
 
 button:hover { background: #1565c0; }
 
-.forgot {
-  text-align: right;
+.terms {
   font-size: 12px;
   color: #555;
-  margin-top: 5px;
+  margin-bottom: 15px;
 }
-.forgot a { color: #1e88e5; text-decoration: none; }
+.terms a { color: #1e88e5; text-decoration: none; margin-left: 5px; }
 </style>
 </head>
 
 <body>
 <div class="container">
-  <h2>Login - Vagalume IA</h2>
+  <h2>Criar Conta - Vagalume IA</h2>
+
+  <input type="text" id="nome" placeholder="Seu nome completo" required>
   <input type="email" id="email" placeholder="Digite seu email" required>
-  <input type="password" id="senha" placeholder="Senha" required>
-  <button onclick="login()">Entrar</button>
-  <div class="forgot">
-    <a href="signup.html">Criar Conta</a>
-  </div>
+  <input type="password" id="senha" placeholder="Senha (mín. 6 caracteres)" required>
+
+  <label>Escolha o modo de acesso:</label>
+  <select id="modo">
+    <option value="free">Free (2 PDFs/dia)</option>
+    <option value="premium">Premium (320 MT - ilimitado)</option>
+  </select>
+
+  <label class="terms">
+    <input type="checkbox" id="aceitar"> Aceito os <a href="#">Termos e Condições</a>
+  </label>
+
+  <button onclick="signup()">Criar Conta</button>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getAuth, createUserWithEmailAndPassword, updateProfile } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBQFUQmF4h9yLq2yzRcGdRvQQLpW48kx0M",
@@ -92,35 +101,43 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-async function login() {
+async function signup() {
+  const nome = document.getElementById("nome").value.trim();
   const email = document.getElementById("email").value.trim();
   const senha = document.getElementById("senha").value.trim();
+  const aceitar = document.getElementById("aceitar").checked;
+  const modo = document.getElementById("modo").value;
 
-  if (!email || !senha) return alert("Preencha todos os campos.");
+  if (!nome || !email || !senha) return alert("Preencha todos os campos.");
+  if (!aceitar) return alert("Você precisa aceitar os Termos e Condições.");
+
+  const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!regexEmail.test(email)) return alert("Digite um email válido.");
+  if (senha.length < 6) return alert("A senha deve ter pelo menos 6 caracteres.");
 
   try {
-    const userCred = await signInWithEmailAndPassword(auth, email, senha);
-    const userRef = doc(db, "users", userCred.user.uid);
-    const userSnap = await getDoc(userRef);
+    const userCred = await createUserWithEmailAndPassword(auth, email, senha);
+    await updateProfile(userCred.user, { displayName: nome });
 
-    if (!userSnap.exists()) return alert("Dados do usuário não encontrados.");
+    // Firestore
+    await setDoc(doc(db, "users", userCred.user.uid), {
+      name: nome,
+      email: email,
+      mode: modo,
+      pdfCount: 0,
+      createdAt: new Date()
+    });
 
-    const userData = userSnap.data();
-    const nome = userData.name || "Usuário";
-    const modo = userData.mode || "free";
-
-    alert(`Seja bem-vindo de volta, ${nome}! Você está no modo ${modo.toUpperCase()}.`);
-
-    // Redirecionamento de acordo com o modo
-    if (modo === "premium") {
-      window.location.href = "premium.html"; // Página Premium
+    if(modo === "premium") {
+      alert(`Olá ${nome}, conta Premium selecionada! Após o pagamento de 320 MT, você terá PDFs ilimitados.`);
     } else {
-      window.location.href = "app.html"; // Página Free
+      alert(`Olá ${nome}, conta Free criada com sucesso! Limite de 2 PDFs/dia.`);
     }
 
+    // Redireciona para app
+    window.location.href = "app.html";
   } catch (err) {
-    if (err.code === "auth/user-not-found") alert("Usuário não encontrado.");
-    else if (err.code === "auth/wrong-password") alert("Senha incorreta.");
+    if (err.code === "auth/email-already-in-use") alert("Email já cadastrado.");
     else if (err.code === "auth/network-request-failed") alert("Falha de conexão. Verifique sua internet.");
     else alert(err.message);
   }
