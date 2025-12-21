@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <title>Vagalume IA | Criar Conta</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <style>
 body {
   margin: 0;
@@ -61,7 +60,6 @@ button:hover { background: #1565c0; }
 .terms a { color: #1e88e5; text-decoration: none; margin-left: 5px; }
 </style>
 </head>
-
 <body>
 <div class="container">
   <h2>Criar Conta - Vagalume IA</h2>
@@ -88,6 +86,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
 import { getAuth, createUserWithEmailAndPassword, updateProfile } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+// Configuração do Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyBQFUQmF4h9yLq2yzRcGdRvQQLpW48kx0M",
   authDomain: "vagalumeia-92304.firebaseapp.com",
@@ -111,15 +110,17 @@ async function signup() {
   if (!nome || !email || !senha) return alert("Preencha todos os campos.");
   if (!aceitar) return alert("Você precisa aceitar os Termos e Condições.");
 
+  // Validar apenas emails reais
   const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!regexEmail.test(email)) return alert("Digite um email válido.");
   if (senha.length < 6) return alert("A senha deve ter pelo menos 6 caracteres.");
 
   try {
+    // Criar usuário
     const userCred = await createUserWithEmailAndPassword(auth, email, senha);
     await updateProfile(userCred.user, { displayName: nome });
 
-    // Firestore
+    // Salvar no Firestore
     await setDoc(doc(db, "users", userCred.user.uid), {
       name: nome,
       email: email,
@@ -128,14 +129,14 @@ async function signup() {
       createdAt: new Date()
     });
 
-    if(modo === "premium") {
+    if (modo === "premium") {
       alert(`Olá ${nome}, conta Premium selecionada! Após o pagamento de 320 MT, você terá PDFs ilimitados.`);
+      window.location.href = "premium.html";
     } else {
       alert(`Olá ${nome}, conta Free criada com sucesso! Limite de 2 PDFs/dia.`);
+      window.location.href = "app.html";
     }
 
-    // Redireciona para app
-    window.location.href = "app.html";
   } catch (err) {
     if (err.code === "auth/email-already-in-use") alert("Email já cadastrado.");
     else if (err.code === "auth/network-request-failed") alert("Falha de conexão. Verifique sua internet.");
