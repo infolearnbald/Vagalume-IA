@@ -1,168 +1,207 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-  <meta charset="UTF-8">
-  <title>Criar Conta | Vagalume IA</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<title>Criar Conta | Vagalume IA</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      min-height: 100vh;
-      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      color: #fff;
-    }
+<style>
+body {
+    margin: 0;
+    font-family: "Segoe UI", Arial, sans-serif;
+    background: linear-gradient(135deg, #eaf2ff, #ffffff);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 
-    .box {
-      background: rgba(0,0,0,0.55);
-      padding: 30px;
-      border-radius: 12px;
-      width: 100%;
-      max-width: 420px;
-      box-shadow: 0 0 30px rgba(0,0,0,0.6);
-    }
+.container {
+    width: 100%;
+    max-width: 420px;
+    background: #fff;
+    padding: 30px;
+    border-radius: 14px;
+    box-shadow: 0 10px 30px rgba(0,0,0,.08);
+}
 
-    h2 {
-      text-align: center;
-      margin-bottom: 20px;
-    }
+.logo {
+    text-align: center;
+    margin-bottom: 20px;
+}
 
-    input, select {
-      width: 100%;
-      padding: 12px;
-      margin-bottom: 12px;
-      border-radius: 6px;
-      border: none;
-      outline: none;
-    }
+.logo img {
+    width: 90px;
+}
 
-    .terms {
-      font-size: 14px;
-      margin-bottom: 15px;
-    }
+.logo h1 {
+    margin: 10px 0 5px;
+    color: #1e88e5;
+}
 
-    button {
-      width: 100%;
-      padding: 12px;
-      background: #ffd700;
-      color: #000;
-      border: none;
-      border-radius: 6px;
-      font-size: 16px;
-      cursor: pointer;
-      font-weight: bold;
-    }
+.logo p {
+    font-size: 13px;
+    color: #666;
+}
 
-    button:hover {
-      background: #e6c200;
-    }
+input {
+    width: 100%;
+    padding: 12px;
+    margin-top: 12px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+}
 
-    .error {
-      color: #ff8080;
-      margin-bottom: 10px;
-      text-align: center;
-    }
-  </style>
+.modo {
+    margin-top: 15px;
+    font-size: 14px;
+}
+
+.modo label {
+    display: block;
+    margin-top: 6px;
+    cursor: pointer;
+}
+
+.terms {
+    margin-top: 15px;
+    font-size: 13px;
+}
+
+button {
+    width: 100%;
+    margin-top: 18px;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    background: #1e88e5;
+    color: #fff;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #1565c0;
+}
+
+.error {
+    margin-top: 10px;
+    color: red;
+    font-size: 13px;
+    text-align: center;
+}
+</style>
 </head>
+
 <body>
 
-<div class="box">
-  <h2>Criar Conta</h2>
+<div class="container">
+    <div class="logo">
+        <img src="vagalume.png" alt="Vagalume IA">
+        <h1>Vagalume IA</h1>
+        <p>A SECOS Intelligence</p>
+    </div>
 
-  <div id="error" class="error"></div>
+    <input type="text" id="nome" placeholder="Nome completo">
+    <input type="email" id="email" placeholder="Email válido">
+    <input type="password" id="senha" placeholder="Senha (mín. 6 caracteres)">
 
-  <input type="text" id="name" placeholder="Seu nome completo">
-  <input type="email" id="email" placeholder="Email válido">
-  <input type="password" id="password" placeholder="Senha (mín. 6 caracteres)">
+    <div class="modo">
+        <strong>Escolha o modo:</strong>
+        <label>
+            <input type="radio" name="plano" value="free" checked>
+            Modo Free (limitado)
+        </label>
+        <label>
+            <input type="radio" name="plano" value="premium">
+            Modo Premium (sem limites)
+        </label>
+    </div>
 
-  <select id="mode">
-    <option value="free">Modo Free</option>
-    <option value="premium">Modo Premium</option>
-  </select>
+    <div class="terms">
+        <label>
+            <input type="checkbox" id="termos">
+            Li e aceito os Termos e Condições
+        </label>
+    </div>
 
-  <div class="terms">
-    <input type="checkbox" id="terms">
-    Aceito os Termos e Condições
-  </div>
+    <button onclick="criarConta()">Criar Conta</button>
 
-  <button id="btnSignup">Criar Conta</button>
+    <div class="error" id="erro"></div>
 </div>
 
+<!-- FIREBASE -->
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-  import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyBQFUQmF4h9yLq2yzRcGdRvQQLpW48kx0M",
-    authDomain: "vagalumeia-92304.firebaseapp.com",
-    projectId: "vagalumeia-92304",
-    storageBucket: "vagalumeia-92304.firebasestorage.app",
-    messagingSenderId: "995747174944",
-    appId: "1:995747174944:web:7536114239aadec568fa45"
-  };
+const firebaseConfig = {
+  apiKey: "AIzaSyBQFUQmF4h9yLq2yzRcGdRvQQLpW48kx0M",
+  authDomain: "vagalumeia-92304.firebaseapp.com",
+  projectId: "vagalumeia-92304",
+  storageBucket: "vagalumeia-92304.firebasestorage.app",
+  messagingSenderId: "995747174944",
+  appId: "1:995747174944:web:7536114239aadec568fa45"
+};
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
-  document.getElementById("btnSignup").addEventListener("click", signup);
-
-  function validarEmail(email) {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  }
-
-  async function signup() {
-    const name = document.getElementById("name").value.trim();
+window.criarConta = async function () {
+    const nome = document.getElementById("nome").value.trim();
     const email = document.getElementById("email").value.trim();
-    const password = document.getElementById("password").value;
-    const mode = document.getElementById("mode").value;
-    const terms = document.getElementById("terms").checked;
-    const errorDiv = document.getElementById("error");
+    const senha = document.getElementById("senha").value;
+    const termos = document.getElementById("termos").checked;
+    const plano = document.querySelector('input[name="plano"]:checked').value;
+    const erro = document.getElementById("erro");
 
-    errorDiv.innerText = "";
+    erro.innerText = "";
 
-    if (!name || !email || !password) {
-      errorDiv.innerText = "Preencha todos os campos.";
-      return;
+    // VALIDAÇÕES
+    if (!nome || !email || !senha) {
+        erro.innerText = "Preencha todos os campos.";
+        return;
     }
 
-    if (!validarEmail(email)) {
-      errorDiv.innerText = "Digite um email válido.";
-      return;
+    if (!email.includes("@") || !email.includes(".")) {
+        erro.innerText = "Digite um email válido.";
+        return;
     }
 
-    if (password.length < 6) {
-      errorDiv.innerText = "A senha deve ter no mínimo 6 caracteres.";
-      return;
+    if (senha.length < 6) {
+        erro.innerText = "A senha deve ter pelo menos 6 caracteres.";
+        return;
     }
 
-    if (!terms) {
-      errorDiv.innerText = "Você deve aceitar os Termos e Condições.";
-      return;
+    if (!termos) {
+        erro.innerText = "Você deve aceitar os Termos e Condições.";
+        return;
     }
 
     try {
-      const cred = await createUserWithEmailAndPassword(auth, email, password);
+        const cred = await createUserWithEmailAndPassword(auth, email, senha);
 
-      await setDoc(doc(db, "users", cred.user.uid), {
-        name,
-        email,
-        mode,
-        createdAt: serverTimestamp()
-      });
+        await setDoc(doc(db, "users", cred.user.uid), {
+            nome: nome,
+            email: email,
+            plano: plano,
+            criadoEm: serverTimestamp(),
+            pdfsHoje: 0
+        });
 
-      // Por enquanto todos entram no chat
-      window.location.href = "chat.html";
+        if (plano === "free") {
+            window.location.href = "app.html";
+        } else {
+            window.location.href = "premium-plan.html";
+        }
 
-    } catch (err) {
-      errorDiv.innerText = err.message;
+    } catch (e) {
+        erro.innerText = e.message.replace("Firebase:", "");
     }
-  }
+};
 </script>
 
 </body>
