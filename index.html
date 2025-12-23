@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<title>Vagalume IA | SECOS Intelligence</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+*{box-sizing:border-box;font-family:"Segoe UI",Arial,sans-serif}
+body{
+  min-height:100vh;
+  margin:0;
+  background: linear-gradient(rgba(255,255,255,.85), rgba(255,255,255,.85)), 
+              url("bg-presenca.jpg") center/cover no-repeat;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  overflow-x:hidden;
+}
+
+/* CARD PRINCIPAL */
+.card{
+  width:100%;
+  max-width:600px;
+  background:#fff;
+  padding:30px;
+  border-radius:14px;
+  box-shadow:0 15px 40px rgba(0,0,0,.12);
+  animation:fadeIn .8s ease;
+  text-align:center;
+}
+
+@keyframes fadeIn{
+  from{opacity:0;transform:translateY(15px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+/* LOGO */
+.logo{
+  margin-bottom:20px;
+  animation:float 4s ease-in-out infinite;
+}
+.logo img{width:120px; max-width:50%;}
+@keyframes float { 0%{transform:translateY(0);} 50%{transform:translateY(-10px);} 100%{transform:translateY(0);} }
+
+h1{color:#0d47a1;margin-bottom:15px;font-size:32px;}
+h1 span{color:#1976d2;}
+
+p{font-size:15px;color:#333;margin-bottom:15px;line-height:1.6;}
+small{color:#555;display:block;margin-bottom:20px;font-size:12px;}
+
+/* BOTÕES */
+.buttons{display:flex;gap:15px;justify-content:center;flex-wrap:wrap;margin-top:10px;}
+.buttons a{
+  text-decoration:none;
+  padding:12px 24px;
+  border-radius:8px;
+  font-weight:bold;
+  transition:0.3s;
+  text-align:center;
+}
+.btn-primary{background:#1976d2;color:white;}
+.btn-primary:hover{background:#0d47a1;}
+.btn-secondary{border:2px solid #1976d2;color:#1976d2;}
+.btn-secondary:hover{background:#e3f2fd;}
+.btn-link{color:#555;font-weight:normal;}
+
+/* RESPONSIVO */
+@media (max-width:600px){
+  .card{padding:20px;}
+  h1{font-size:28px;}
+  p{font-size:14px;}
+  .logo img{width:100px;}
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+  <div class="logo">
+    <img src="vagalume-free.png" alt="Vagalume IA">
+  </div>
+
+  <h1>Vagalume <span>IA</span></h1>
+  <p>A inteligência artificial profissional para currículos, consultoria e orientação profissional adaptada ao seu país.</p>
+  <p>Atua de forma conversacional, ética e especializada no mundo profissional.</p>
+  <small>SECOS Intelligence</small>
+
+  <div class="buttons">
+    <a href="login.html" class="btn-primary">Entrar</a>
+    <a href="signup.html" class="btn-secondary">Criar Conta</a>
+    <a href="#" class="btn-link">Saber mais</a>
+  </div>
+</div>
+
+<script>
+// ================= DETECÇÃO DE IDIOMA =================
+function loadLanguage(){
+  let lang = navigator.language || navigator.userLanguage;
+  lang = lang.toLowerCase().startsWith("pt") ? "pt" : "en";
+  const t = {
+    pt:{
+      welcome:"Vagalume IA",
+      description:"A inteligência artificial profissional para currículos, consultoria e orientação profissional adaptada ao seu país.",
+      ecos:"Atua de forma conversacional, ética e especializada no mundo profissional.",
+      subtitle:"SECOS Intelligence",
+      btnLogin:"Entrar",
+      btnSignup:"Criar Conta",
+      btnLearn:"Saber mais"
+    },
+    en:{
+      welcome:"Vagalume AI",
+      description:"Professional AI for resumes, business consulting, and career guidance adapted to your country.",
+      ecos:"Operates conversationally, ethically, and specialized in the professional world.",
+      subtitle:"SECOS Intelligence",
+      btnLogin:"Login",
+      btnSignup:"Sign Up",
+      btnLearn:"Learn more"
+    }
+  };
+
+  document.querySelector("h1").innerHTML = t[lang].welcome.replace("IA","<span>IA</span>");
+  document.querySelectorAll("p")[0].textContent = t[lang].description;
+  document.querySelectorAll("p")[1].textContent = t[lang].ecos;
+  document.querySelector("small").textContent = t[lang].subtitle;
+
+  const btns = document.querySelectorAll(".buttons a");
+  btns[0].textContent = t[lang].btnLogin;
+  btns[1].textContent = t[lang].btnSignup;
+  btns[2].textContent = t[lang].btnLearn;
+}
+
+document.addEventListener("DOMContentLoaded", loadLanguage);
+</script>
+
+</body>
+</html>

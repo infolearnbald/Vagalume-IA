@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<title>Criar Conta | Vagalume IA</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+*{box-sizing:border-box;font-family:"Segoe UI",Arial,sans-serif}
+body{
+  min-height:100vh;
+  margin:0;
+  background:linear-gradient(rgba(255,255,255,.92),rgba(255,255,255,.92)), url("bg-presenca.jpg") center/cover no-repeat;
+  display:flex; justify-content:center; align-items:center;
+}
+.card{
+  width:100%; max-width:450px; background:#fff; padding:30px;
+  border-radius:14px; box-shadow:0 15px 40px rgba(0,0,0,.12); animation:fadeIn .8s ease;
+  text-align:center;
+}
+@keyframes fadeIn{from{opacity:0;transform:translateY(15px)}to{opacity:1;transform:translateY(0)}}
+.logo{margin-bottom:20px; animation:float 4s ease-in-out infinite;}
+.logo img{width:90px}
+.logo small{display:block;color:#666;font-size:12px;margin-top:6px}
+h2{text-align:center;color:#0d47a1;margin-bottom:20px}
+label{font-size:14px;font-weight:600;color:#333;text-align:left; display:block; margin-top:10px;}
+input, select{width:100%; padding:12px; margin:8px 0 16px; border-radius:8px; border:1px solid #ccc; font-size:14px;}
+input:focus, select:focus{outline:none; border-color:#1976d2;}
+button{width:100%; padding:13px; background:#1976d2; color:#fff; border:none; border-radius:8px; font-weight:bold; cursor:pointer;}
+button:disabled{background:#9bbce5; cursor:not-allowed;}
+.error{color:#c62828; font-size:13px; margin-bottom:10px; display:none;}
+.footer{text-align:center; margin-top:15px; font-size:13px;}
+.footer a{color:#1976d2;text-decoration:none;}
+.terms{display:flex; align-items:center; gap:8px; margin-bottom:16px; font-size:13px;}
+.terms input{width:auto;}
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="logo">
+    <img src="vagalume-free.png" alt="Vagalume IA">
+    <small>SECOS Intelligence</small>
+  </div>
+
+  <h2>Criar Conta</h2>
+  <div class="error" id="errorBox"></div>
+
+  <label>Email</label>
+  <input type="email" id="email" placeholder="exemplo@email.com">
+
+  <label>Senha</label>
+  <input type="password" id="password" placeholder="Sua senha">
+
+  <label>Escolha o plano</label>
+  <select id="plan">
+    <option value="free">Free</option>
+    <option value="premium">Premium</option>
+  </select>
+
+  <div class="terms">
+    <input type="checkbox" id="terms">
+    <label for="terms">Aceito os termos e condições</label>
+  </div>
+
+  <button id="btn">Criar Conta</button>
+
+  <div class="footer">
+    Já tem conta? <a href="login.html">Entrar</a>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+// ================== FIREBASE ==================
+const firebaseConfig = {
+  apiKey: "AIzaSyCoRcuUkyzcLOTc12iCCehIQgtsgMh1b7Y",
+  authDomain: "vagalume-ia.firebaseapp.com",
+  projectId: "vagalume-ia",
+  storageBucket: "vagalume-ia.firebasestorage.app",
+  messagingSenderId: "618522946644",
+  appId: "1:618522946644:web:72527f662aa8c181efd1c1"
+};
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+const email = document.getElementById("email");
+const password = document.getElementById("password");
+const plan = document.getElementById("plan");
+const terms = document.getElementById("terms");
+const btn = document.getElementById("btn");
+const errorBox = document.getElementById("errorBox");
+
+function showError(msg){
+  errorBox.style.display="block";
+  errorBox.textContent = msg;
+}
+
+btn.onclick = async () => {
+  errorBox.style.display="none";
+
+  if(!email.value || !password.value) return showError("Preencha todos os campos.");
+  if(!terms.checked) return showError("Você deve aceitar os termos e condições.");
+
+  // validar e-mail real
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if(!emailPattern.test(email.value)) return showError("Insira um email válido.");
+
+  btn.disabled = true;
+
+  try{
+    const cred = await createUserWithEmailAndPassword(auth, email.value, password.value);
+
+    // salvar plano no firestore
+    await setDoc(doc(db,"users",cred.user.uid),{
+      email: email.value,
+      modo: plan.value,
+      createdAt: new Date().toISOString()
+    });
+
+    if(plan.value === "premium") window.location.href = "premium-key.html";
+    else window.location.href = "app.html";
+
+  }catch(err){
+    btn.disabled = false;
+    if(err.code === "auth/email-already-in-use") showError("Email já está em uso.");
+    else showError("Erro ao criar conta. Tente novamente.");
+  }
+};
+</script>
+
+</body>
+</html>

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<title>Premium | Vagalume IA</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+*{box-sizing:border-box;font-family:"Segoe UI",Arial,sans-serif}
+body{
+  min-height:100vh; margin:0;
+  background:linear-gradient(rgba(255,235,205,.85),rgba(255,248,220,.85)),
+             url("bg-premium.jpg") center/cover no-repeat;
+  display:flex; justify-content:center; align-items:center;
+  color:#333;
+}
+.card{
+  width:100%; max-width:420px; background:#fff7e6;
+  padding:30px; border-radius:14px;
+  box-shadow:0 15px 40px rgba(0,0,0,.2); text-align:center;
+  animation:fadeIn .8s ease;
+}
+@keyframes fadeIn{from{opacity:0;transform:translateY(15px)}to{opacity:1;transform:translateY(0)}}
+.logo{margin-bottom:20px;}
+.logo img{width:90px}
+.logo small{display:block;color:#b8860b;font-size:12px;margin-top:6px;font-weight:bold;}
+h2{text-align:center;color:#b8860b;margin-bottom:20px;}
+label{font-size:14px;font-weight:600;color:#333;text-align:left; display:block; margin-top:10px;}
+input{width:100%; padding:12px; margin:8px 0 16px; border-radius:8px; border:1px solid #ccc; font-size:14px;}
+input:focus{outline:none; border-color:#b8860b;}
+button{width:100%; padding:13px; background:#b8860b; color:#fff; border:none; border-radius:8px; font-weight:bold; cursor:pointer;}
+button:disabled{background:#f0d9a7; cursor:not-allowed;}
+.error{color:#c62828; font-size:13px; margin-bottom:10px; display:none;}
+.footer{text-align:center; margin-top:15px; font-size:13px;}
+.footer a{color:#b8860b;text-decoration:none;}
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="logo">
+    <img src="vagalume-premium.png" alt="Vagalume Premium">
+    <small>SECOS Premium</small>
+  </div>
+
+  <h2>Digite sua chave Premium</h2>
+  <div class="error" id="errorBox"></div>
+
+  <label>Chave de acesso</label>
+  <input type="text" id="key" placeholder="Ex: ABCD-1234-EFGH">
+
+  <button id="btn">Verificar Chave</button>
+
+  <div class="footer">
+    Não tem chave? <a href="#" id="requestKey">Solicitar via WhatsApp</a>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+// ================ FIREBASE =================
+const firebaseConfig = {
+  apiKey: "AIzaSyCoRcuUkyzcLOTc12iCCehIQgtsgMh1b7Y",
+  authDomain: "vagalume-ia.firebaseapp.com",
+  projectId: "vagalume-ia",
+  storageBucket: "vagalume-ia.firebasestorage.app",
+  messagingSenderId: "618522946644",
+  appId: "1:618522946644:web:72527f662aa8c181efd1c1"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+const keyInput = document.getElementById("key");
+const btn = document.getElementById("btn");
+const errorBox = document.getElementById("errorBox");
+const requestKey = document.getElementById("requestKey");
+
+function showError(msg){
+  errorBox.style.display="block";
+  errorBox.textContent=msg;
+}
+
+// Redireciona para WhatsApp para solicitar chave
+requestKey.onclick = () => {
+  window.open("https://wa.me/258844180213?text=Olá, preciso adquirir a chave Premium.", "_blank");
+};
+
+// Função para verificar chave
+btn.onclick = async () => {
+  const user = auth.currentUser;
+  if(!user){
+    return showError("Usuário não autenticado. Faça login novamente.");
+  }
+  const keyValue = keyInput.value.trim();
+  if(!keyValue) return showError("Digite a chave.");
+
+  btn.disabled = true;
+  errorBox.style.display = "none";
+
+  try{
+    // Referência da chave no Firestore
+    const keyRef = doc(db,"premiumKeys",keyValue);
+    const keySnap = await getDoc(keyRef);
+
+    if(!keySnap.exists()){
+      showError("Chave inválida.");
+      btn.disabled = false;
+      return;
+    }
+
+    const keyData = keySnap.data();
+
+    if(keyData.used){
+      showError("Chave já foi utilizada.");
+      btn.disabled = false;
+      return;
+    }
+
+    // Vincular chave ao usuário
+    const userRef = doc(db,"users",user.uid);
+    await updateDoc(userRef,{modo:"premium", premiumKey:keyValue, premiumExpiry:keyData.expiry});
+
+    // Atualizar chave como usada
+    await updateDoc(keyRef,{used:true, usedBy:user.uid, usedAt:new Date().toISOString()});
+
+    // Redireciona para chat Premium
+    window.location.href = "app.html";
+
+  }catch(err){
+    console.error(err);
+    showError("Erro ao validar a chave. Tente novamente.");
+    btn.disabled = false;
+  }
+};
+</script>
+
+</body>
+</html>
