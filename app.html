@@ -5,7 +5,6 @@
 <title>Vagalume IA | Chat</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-/* Reset e fonte */
 *{margin:0;padding:0;box-sizing:border-box;font-family:"Segoe UI",Arial,sans-serif}
 body{height:100vh;display:flex;flex-direction:column;background:#f7f7f7}
 header{background:#1976d2;color:white;padding:12px;text-align:center;font-size:18px;font-weight:bold}
@@ -16,6 +15,7 @@ header{background:#1976d2;color:white;padding:12px;text-align:center;font-size:1
 .footer{display:flex;gap:8px;padding:10px;background:white;border-top:1px solid #ccc;}
 input[type=text]{flex:1;padding:10px;border-radius:8px;border:1px solid #ccc;}
 button{padding:10px 15px;background:#1976d2;color:white;border:none;border-radius:8px;cursor:pointer;}
+button:disabled{background:#9bbce5;cursor:not-allowed;}
 </style>
 </head>
 <body>
@@ -36,7 +36,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { getFirestore, doc, getDoc, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-// Firebase config
+// Configuração Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyCoRcuUkyzcLOTc12iCCehIQgtsgMh1b7Y",
   authDomain: "vagalume-ia.firebaseapp.com",
@@ -50,27 +50,19 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+// Elementos do DOM
 const chat = document.getElementById("chat");
 const msgInput = document.getElementById("msgInput");
 const sendBtn = document.getElementById("sendBtn");
 const addFileBtn = document.getElementById("addFileBtn");
 const fileInput = document.getElementById("fileInput");
 
+// Usuário e idioma
 let currentUser = null;
 let userData = null;
+let idioma = navigator.language.startsWith("pt") ? "pt" : "en";
 
-onAuthStateChanged(auth, async (user)=>{
-  if(user){
-    currentUser = user;
-    const docRef = doc(db,"users",user.uid);
-    const snap = await getDoc(docRef);
-    if(snap.exists()) userData = snap.data();
-    else alert("Erro: dados do usuário não encontrados.");
-  } else {
-    window.location.href = "login.html";
-  }
-});
-
+// Adiciona mensagem ao chat
 function addMessage(msg, sender){
   const div = document.createElement("div");
   div.className = "message " + sender;
@@ -79,39 +71,106 @@ function addMessage(msg, sender){
   chat.scrollTop = chat.scrollHeight;
 }
 
+// Estado de autenticação
+onAuthStateChanged(auth, async (user)=>{
+  if(user){
+    currentUser = user;
+    const docRef = doc(db,"users",user.uid);
+    const snap = await getDoc(docRef);
+
+    if(!snap.exists()){
+      alert("Erro: dados do usuário não encontrados.");
+      return;
+    }
+
+    userData = snap.data();
+
+    // Mensagem automática
+    if(!userData.jaEntrou){
+      addMessage(
+        idioma==="pt"
+        ? `Olá ${userData.nome}, bem-vindo à Vagalume IA.`
+        : `Hello ${userData.nome}, welcome to Vagalume IA.`,
+        "ia"
+      );
+      await updateDoc(docRef,{ jaEntrou:true });
+    }else{
+      addMessage(
+        idioma==="pt"
+        ? `Bem-vindo de volta, ${userData.nome}.`
+        : `Welcome back, ${userData.nome}.`,
+        "ia"
+      );
+    }
+
+    // Bloqueio de upload para Free
+    if(userData.modo !== "premium"){
+      addFileBtn.style.display = "none";
+    }
+
+  } else {
+    window.location.href = "login.html";
+  }
+});
+
 // Enviar mensagem
 sendBtn.onclick = async ()=>{
   const text = msgInput.value.trim();
   if(!text) return;
   addMessage(text,"user");
   msgInput.value="";
-  
-  // Chamada backend para IA (mock)
-  const response = await fetch("https://vagalumeia-backend.onrender.com/chat",{
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({uid:currentUser.uid,msg:text})
-  });
-  const data = await response.json();
-  addMessage(data.reply,"ia");
-  
-  // Salvar mensagem no Firestore
-  const userRef = doc(db,"users",currentUser.uid);
-  await updateDoc(userRef,{
-    chatHistory: arrayUnion({from:"user",text:text},{from:"ia",text:data.reply,createdAt:new Date().toISOString()})
-  });
+  sendBtn.disabled = true;
+
+  try{
+    const response = await fetch("https://vagalumeia-backend.onrender.com/chat",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({
+        uid: currentUser.uid,
+        message: text,
+        modo: userData.modo || "free",
+        idioma: idioma
+      })
+    });
+    const data = await response.json();
+    addMessage(data.reply,"ia");
+
+    // Salvar histórico
+    const userRef = doc(db,"users",currentUser.uid);
+    await updateDoc(userRef,{
+      chatHistory: arrayUnion(
+        {from:"user",text:text,createdAt:new Date().toISOString()},
+        {from:"ia",text:data.reply,createdAt:new Date().toISOString()}
+      )
+    });
+  }catch(e){
+    addMessage(idioma==="pt" ? "Erro ao enviar mensagem." : "Error sending message.","ia");
+  }finally{
+    sendBtn.disabled = false;
+  }
 };
 
-// Upload de arquivo
+// Upload de arquivos
 addFileBtn.onclick = ()=>fileInput.click();
 fileInput.onchange = ()=>{
+  if(userData.modo !== "premium"){
+    addMessage(
+      idioma==="pt"
+      ? "⚠️ Upload disponível apenas no plano Premium."
+      : "⚠️ Upload available only for Premium users.",
+      "ia"
+    );
+    return;
+  }
+
   const file = fileInput.files[0];
   if(file){
-    addMessage("Arquivo enviado: "+file.name,"user");
-    // Você pode enviar o arquivo para o backend para análise ou geração
+    addMessage("📎 Arquivo enviado: "+file.name,"user");
+    // Futuro envio para backend
   }
 };
 </script>
 
 </body>
 </html>
+
