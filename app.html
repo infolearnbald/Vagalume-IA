@@ -134,27 +134,39 @@ onAuthStateChanged(auth, (user)=>{
 });
 
 // ENVIAR MENSAGEM
-sendBtn.onclick = async ()=>{
+sendBtn.onclick = async () => {
   const text = msgInput.value.trim();
-  if(!text) return;
+  if (!text) return;
 
   addMessage(text,"user");
   msgInput.value="";
 
-  try{
-    const res = await fetch(BACKEND_URL,{
-      method:"POST",
-      headers:{ "Content-Type":"application/json" },
-      body: JSON.stringify({ message: text })
-    });
+  addMessage("⏳ A processar...","ia");
 
-    if(!res.ok) throw new Error("Backend offline");
+  try {
+    const controller = new AbortController();
+    setTimeout(() => controller.abort(), 60000); // 60s
+
+    const res = await fetch(
+      "https://vagalumeia-backend-1.onrender.com/chat",
+      {
+        method:"POST",
+        headers:{ "Content-Type":"application/json" },
+        body: JSON.stringify({ message: text }),
+        signal: controller.signal
+      }
+    );
 
     const data = await res.json();
-    addMessage(data.reply || "Sem resposta no momento.","ia");
+    chat.lastChild.remove(); // remove "A processar"
+    addMessage(data.reply,"ia");
 
-  }catch(err){
-    addMessage("❌ Backend indisponível no momento.","ia");
+  } catch {
+    chat.lastChild.remove();
+    addMessage(
+      "⏳ O servidor estava a acordar. Tente novamente agora.",
+      "ia"
+    );
   }
 };
 </script>
