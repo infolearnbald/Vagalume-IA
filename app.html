@@ -72,36 +72,41 @@ function addMessage(msg, sender){
 }
 
 // Estado de autenticação
-onAuthStateChanged(auth, async (user)=>{
-  if(user){
+onAuthStateChanged(auth, async (user) => {
+  if (user) {
     currentUser = user;
-    const docRef = doc(db,"users",user.uid);
+    const docRef = doc(db, "users", user.uid);
     const snap = await getDoc(docRef);
 
-    if(!snap.exists()){
-      alert("Erro: dados do usuário não encontrados.");
-      return;
-    }
+    // Se o documento não existir, cria com campo nome e jaEntrou
+    if (!snap.exists()) {
+      // Pede ao usuário o nome (ou você pode pegar do cadastro)
+      const nome = prompt("Por favor, informe seu nome:");
+      await updateDoc(docRef, {
+        nome: nome || "Usuário",
+        jaEntrou: true,
+        chatHistory: [],
+        modo: "free" // ou "premium", dependendo do cadastro
+      });
+      userData = { nome: nome || "Usuário", jaEntrou: true, modo: "free", chatHistory: [] };
 
-    userData = snap.data();
+      // Mensagem de boas-vindas
+      addMessage(`Olá ${userData.nome}, bem-vindo à Vagalume IA.`, "ia");
+    } else {
+      userData = snap.data();
 
-    // Mensagem automática
-    if(!userData.jaEntrou){
-      addMessage(
-        idioma==="pt"
-        ? `Olá ${userData.nome}, bem-vindo à Vagalume IA.`
-        : `Hello ${userData.nome}, welcome to Vagalume IA.`,
-        "ia"
-      );
-      await updateDoc(docRef,{ jaEntrou:true });
-    }else{
-      addMessage(
-        idioma==="pt"
-        ? `Bem-vindo de volta, ${userData.nome}.`
-        : `Welcome back, ${userData.nome}.`,
-        "ia"
-      );
+      // Mensagem de retorno
+      if (!userData.jaEntrou) {
+        addMessage(`Olá ${userData.nome}, bem-vindo à Vagalume IA.`, "ia");
+        await updateDoc(docRef, { jaEntrou: true });
+      } else {
+        addMessage(`Bem-vindo de volta, ${userData.nome}.`, "ia");
+      }
     }
+  } else {
+    window.location.href = "login.html";
+  }
+});
 
     // Bloqueio de upload para Free
     if(userData.modo !== "premium"){
@@ -173,4 +178,5 @@ fileInput.onchange = ()=>{
 
 </body>
 </html>
+
 
